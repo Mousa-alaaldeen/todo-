@@ -1,24 +1,20 @@
 import logo from './logo.svg';
 import './App.css';
-
+import TodoList from './Component/TodoList';
+import { Container } from '@mui/material';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+   <>
+    <Card sx={{ minWidth: 275, backgroundColor: '#121212', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+   <Container >
+   <TodoList />
+   </Container>
+   </Card>
+
+   </>
   );
 }
 
