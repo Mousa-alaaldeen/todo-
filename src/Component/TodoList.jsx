@@ -33,8 +33,6 @@ export default function TodoList() {
         setTodos([...todos, newTodo]);
         setInputTodo('');
     }
-
-
     const todoJsx = todos.map((todo) => (
         <Todo key={todo.id} todo={todo} handleOnChange={handleOnChange} />
     ));

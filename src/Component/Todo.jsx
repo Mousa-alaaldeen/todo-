@@ -18,10 +18,16 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
 
 export default function Todo({ todo }) {
   const { todos, setTodos } = useContext(TodosContext);
+  const [inputTodo, setInputTodo] = useState({
+    title:todo.title,
+    desc:todo.desc
+  });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const toggleTodoComplete = () => {
     const updatedTodos = todos.map((t) => {
@@ -46,12 +52,30 @@ export default function Todo({ todo }) {
     setTodos(updatedTodos);
     setIsDialogOpen(false);
   };
-  
+  function openEditDialog() {
+    setIsEditDialogOpen(true);
+  }
+
+  function closeEditeDialog() {
+    setIsEditDialogOpen(false);
+  }
+  function handleEditTodo(){
+    const updatedTodos=todos.map((t) => {
+      if(t.id==todo.id){
+        t.title=inputTodo.title;
+        t.desc=inputTodo.desc;
+      }
+      return t;
+    
+    });
+    setTodos(updatedTodos);
+    setIsEditDialogOpen(false);
+  }
 
 
   return (
     <>
-      {/* Dialog for Confirm Deletion */}
+      {/* Delete Dialog */}
       <Dialog
         open={isDialogOpen}
         onClose={closeDeleteDialog}
@@ -73,7 +97,41 @@ export default function Todo({ todo }) {
           </Button>
         </DialogActions>
       </Dialog>
+      {/*== Delete Dialog == */}
 
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onClose={closeEditeDialog} >
+        <DialogTitle>Edit Todo</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="title"
+            label="Title"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={ inputTodo.title }
+            onChange={(e) => setInputTodo({ ...inputTodo, title: e.target.value })}
+          />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="desc"
+            label="Description"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={ inputTodo.desc }
+            onChange={(e) => setInputTodo({ ...inputTodo, desc: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeEditeDialog}>Cancel</Button>
+          <Button onClick={handleEditTodo}>Save</Button>
+        </DialogActions>
+      </Dialog>
+      {/* == Edit Dialog == */}
       {/* Todo Card */}
       <Card className="todoCard" sx={{ minWidth: 275, backgroundColor: '#2c2c2c', borderRadius: 3 }}>
         <CardContent>
@@ -106,6 +164,7 @@ export default function Todo({ todo }) {
                   className="iconButton"
                   aria-label="edit"
                   sx={{ color: '#2979ff', border: '1px solid #2979ff' }}
+                  onClick={openEditDialog}
                 >
                   <EditIcon />
                 </IconButton>
