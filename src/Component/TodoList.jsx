@@ -3,92 +3,96 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { Container } from '@mui/material';
+import { Container, Grid, TextField, Button } from '@mui/material';
 import ToggleButtons from './ToggleButton';
 import Todo from './Todo';
-import Grid from '@mui/material/Grid';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
 import { v4 as uuidv4 } from 'uuid';
-import { useState } from 'react';
-import { TodosContext } from '../contexts/todosContext';
-import { useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { TodosContext, AlignmentContext } from '../contexts/todosContext';
+
 export default function TodoList() {
-    const { todos, setTodos } = useContext(TodosContext);
+  const { todos, setTodos } = useContext(TodosContext);
+  const { alignment } = useContext(AlignmentContext);
+  const [inputTodo, setInputTodo] = useState('');
 
-    const [inputTodo, setInputTodo] = useState('');
+  const completedTodos = todos.filter((t) => t.isComplete);
+  const unCompletedTodos = todos.filter((t) => !t.isComplete);
 
-    function handleOnChange(e) {
-        setInputTodo(e.target.value);
-    }
+  let todosToBeRendered = todos;
+  if (alignment === 'active') todosToBeRendered = unCompletedTodos;
+  else if (alignment === 'done') todosToBeRendered = completedTodos;
 
-    function handleAddTodo() {
-        if (inputTodo.trim() === '') return;
-        const newTodo = {
-            id: uuidv4(),
-            title: inputTodo,
-            desc: '',
-            isComplete: false,
-        };
-        setTodos([...todos, newTodo]);
-        setInputTodo('');
-    }
-    const todoJsx = todos.map((todo) => (
-        <Todo key={todo.id} todo={todo} handleOnChange={handleOnChange} />
-    ));
+  const handleAddTodo = () => {
+    if (inputTodo.trim() === '') return;
+    const newTodo = {
+      id: uuidv4(),
+      title: inputTodo,
+      desc: '',
+      isComplete: false,
+    };
+    const updatedTodos = [...todos, newTodo];
+    setTodos(updatedTodos);
+    localStorage.setItem('todos', JSON.stringify(updatedTodos));
+    setInputTodo('');
+  };
 
-    return (
-        <Container maxWidth="sm" sx={{ mt: 5, }}>
-            <Card sx={{ backgroundColor: '#333333', p: 2 }}>
-                <CardContent sx={{ backgroundColor: '#333333' }}>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 2,
-                        }}
-                    >
-                        <Typography gutterBottom variant="h3" component="div" sx={{ color: 'white' }}>
-                            Todo List
-                        </Typography>
+  useEffect(() => {
+    const storedTodos = JSON.parse(localStorage.getItem('todos'));
+    setTodos(storedTodos || []);
+  }, []);
 
-                        {/* Toggle Button */}
-                        <ToggleButtons />
-                        {/* ==Toggle Button== */}
+  return (
+    <Container maxWidth="sm">
+      <Card sx={{ bgcolor: '#2b2b2b', maxHeight: '85vh', overflowY: 'auto', borderRadius: 4 }}>
+        <CardContent>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 3,
+              pb: 2,
+            }}
+          >
+            <Typography variant="h4" sx={{ color: 'white', fontWeight: 'bold' }}>
+              Todo List
+            </Typography>
 
-                        {/* Todo List */}
-                        {todoJsx}
-                        {/* ===Todo List== */}
+            <ToggleButtons />
 
-                        {/* Input + Add Button */}
-                        <Grid container spacing={2}>
-                            <Grid item sm={8}>
-                                <TextField
-                                    fullWidth
-                                    required
-                                    id="outlined-required"
-                                    label="New Todo"
-                                    value={inputTodo}
-                                    onChange={handleOnChange}
-                                />
-                            </Grid>
+            <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {todosToBeRendered.map((todo) => (
+                <Todo key={todo.id} todo={todo} />
+              ))}
+            </Box>
 
-                            <Grid item sm={4}>
-                                <Button
-                                    variant="contained"
-                                    style={{ height: '100%', width: '100%' }}
-                                    onClick={handleAddTodo}
-                                >
-                                    Add
-                                </Button>
-                            </Grid>
-                        </Grid>
-                        {/* ===Input + Add Button== */}
-                    </Box>
-                </CardContent>
-            </Card>
-        </Container>
-    );
+            <Grid container spacing={2} sx={{ mt: 2 }}>
+              <Grid item xs={8}>
+                <TextField
+                  fullWidth
+                  label="New Todo"
+                  variant="outlined"
+                  value={inputTodo}
+                  onChange={(e) => setInputTodo(e.target.value)}
+                  sx={{ bgcolor: 'white', borderRadius: 1 }}
+                />
+              </Grid>
+
+              <Grid item xs={4}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  size="large"
+                  onClick={handleAddTodo}
+                  sx={{ height: '100%', bgcolor: '#00bcd4', '&:hover': { bgcolor: '#0097a7' } }}
+                >
+                  Add
+                </Button>
+              </Grid>
+            </Grid>
+          </Box>
+        </CardContent>
+      </Card>
+    </Container>
+  );
 }

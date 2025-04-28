@@ -5,7 +5,7 @@ import { Container } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import { TodosContext } from './contexts/todosContext';
+import { TodosContext,AlignmentContext } from './contexts/todosContext';
 import { v4 as uuidv4 } from 'uuid';
 import { useState } from 'react';
 const initialTodos = [
@@ -31,18 +31,22 @@ const initialTodos = [
 
 function App() {
   const [todos, setTodos] = useState(initialTodos);
-  return (
-   <>
-    <Card sx={{ minWidth: 275, backgroundColor: '#121212', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', }}>
-   <Container >
-    <TodosContext.Provider value={{ todos, setTodos }}>
-   <TodoList />
-    </TodosContext.Provider>
-   </Container>
-   </Card>
+  const [alignment, setAlignment] = useState('all'); 
 
-   </>
+  return (
+    <>
+      <Card sx={{ minWidth: 275, backgroundColor: '#121212', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Container>
+          <TodosContext.Provider value={{ todos, setTodos }}>
+            <AlignmentContext.Provider value={{ alignment, setAlignment }}>
+              <TodoList />
+            </AlignmentContext.Provider>
+          </TodosContext.Provider>
+        </Container>
+      </Card>
+    </>
   );
 }
+
 
 export default App;
