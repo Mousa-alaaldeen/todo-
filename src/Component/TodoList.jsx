@@ -7,7 +7,7 @@ import { Container, Grid, TextField, Button } from '@mui/material';
 import ToggleButtons from './ToggleButton';
 import Todo from './Todo';
 import { v4 as uuidv4 } from 'uuid';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo } from 'react';
 import { TodosContext, AlignmentContext } from '../contexts/todosContext';
 
 export default function TodoList() {
@@ -15,8 +15,9 @@ export default function TodoList() {
   const { alignment } = useContext(AlignmentContext);
   const [inputTodo, setInputTodo] = useState('');
 
-  const completedTodos = todos.filter((t) => t.isComplete);
-  const unCompletedTodos = todos.filter((t) => !t.isComplete);
+  const completedTodos =useMemo(() => todos.filter((t) => t.isComplete), [todos]); 
+
+  const unCompletedTodos = useMemo(()=>todos.filter((t) => !t.isComplete), [todos]);
 
   let todosToBeRendered = todos;
   if (alignment === 'active') todosToBeRendered = unCompletedTodos;
