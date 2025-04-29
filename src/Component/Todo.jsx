@@ -1,78 +1,47 @@
 import * as React from 'react';
-import { Card, CardContent, Grid, IconButton, Stack, Typography, Dialog, Button, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { useState, useContext } from 'react';
+import { Card, CardContent, Grid, IconButton, Stack, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
 import { Delete as DeleteIcon, Check as CheckIcon, Edit as EditIcon } from '@mui/icons-material';
-import { useContext, useState } from 'react';
 import { TodosContext } from '../contexts/todosContext';
+import { ToastContext } from '../contexts/toastContext';
 
-export default function Todo({ todo }) {
+export default function Todo({ todo, showDelete,showEdit }) {
   const { todos, setTodos } = useContext(TodosContext);
+const { showHideToast } = useContext(ToastContext);
+
   const [inputTodo, setInputTodo] = useState({ title: todo.title, desc: todo.desc });
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
+
+  // تغيير حالة الإنجاز للمهمة
   const toggleTodoComplete = () => {
-    const updatedTodos = todos.map((t) =>
-      t.id === todo.id ? { ...t, isComplete: !t.isComplete } : t
-    );
+    const updatedTodos = todos.map((t) => {
+      if (t.id === todo.id) {
+        return { ...t, isComplete: !t.isComplete };
+      } else {
+        return t;
+      }
+    });
+
     setTodos(updatedTodos);
     localStorage.setItem('todos', JSON.stringify(updatedTodos));
+    showHideToast('Todo updated successfully');
   };
 
-  const deleteTodo = () => {
-    const updatedTodos = todos.filter((t) => t.id !== todo.id);
-    setTodos(updatedTodos);
-    localStorage.setItem('todos', JSON.stringify(updatedTodos));
-    setIsDialogOpen(false);
+  // فتح حوار الحذف
+  const openDeleteDialog = () => {
+    showDelete(todo);
   };
 
-  const handleEditTodo = () => {
-    const updatedTodos = todos.map((t) =>
-      t.id === todo.id ? { ...t, title: inputTodo.title, desc: inputTodo.desc } : t
-    );
-    setTodos(updatedTodos);
-    localStorage.setItem('todos', JSON.stringify(updatedTodos));
-    setIsEditDialogOpen(false);
+  // فتح حوار التعديل
+  function openEditDialog  () {
+    showEdit(todo);
+   
   };
 
-  const openDeleteDialog = () => setIsDialogOpen(true);
-  const openEditDialog = () => setIsEditDialogOpen(true);
 
   return (
     <>
-      {/* Delete Dialog */}
-      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>Are you sure you want to delete this task?</DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-          <Button color="error" onClick={deleteTodo}>Delete</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onClose={() => setIsEditDialogOpen(false)}>
-        <DialogTitle>Edit Todo</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-          <TextField
-            label="Title"
-            variant="standard"
-            value={inputTodo.title}
-            onChange={(e) => setInputTodo({ ...inputTodo, title: e.target.value })}
-          />
-          <TextField
-            label="Description"
-            variant="standard"
-            value={inputTodo.desc}
-            onChange={(e) => setInputTodo({ ...inputTodo, desc: e.target.value })}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleEditTodo}>Save</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Todo Card */}
+      {/* كارت المهمة */}
       <Card sx={{ bgcolor: '#424242', borderRadius: 2, mb: 2 }}>
         <CardContent>
           <Grid container alignItems="center" justifyContent="space-between">
@@ -83,7 +52,6 @@ export default function Todo({ todo }) {
                   color: 'white',
                   textDecoration: todo.isComplete ? 'line-through' : 'none',
                   wordBreak: 'break-word',
-                  textDecoration: todo.isComplete ? 'line-through' : 'none'
                 }}
               >
                 {todo.title}
@@ -100,6 +68,7 @@ export default function Todo({ todo }) {
 
             <Grid item>
               <Stack direction="row" spacing={1}>
+                {/* زر إنجاز المهمة */}
                 <IconButton
                   aria-label="complete"
                   sx={{
@@ -113,6 +82,7 @@ export default function Todo({ todo }) {
                   <CheckIcon />
                 </IconButton>
 
+                {/* زر تعديل المهمة */}
                 <IconButton
                   aria-label="edit"
                   sx={{
@@ -126,6 +96,7 @@ export default function Todo({ todo }) {
                   <EditIcon />
                 </IconButton>
 
+                {/* زر حذف المهمة */}
                 <IconButton
                   aria-label="delete"
                   sx={{
@@ -143,6 +114,8 @@ export default function Todo({ todo }) {
           </Grid>
         </CardContent>
       </Card>
+
+     
     </>
   );
 }
