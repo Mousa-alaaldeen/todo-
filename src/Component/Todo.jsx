@@ -3,11 +3,12 @@ import { useState, useContext } from 'react';
 import { Card, CardContent, Grid, IconButton, Stack, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
 import { Delete as DeleteIcon, Check as CheckIcon, Edit as EditIcon } from '@mui/icons-material';
 import { TodosContext } from '../contexts/todosContext';
-import { ToastContext } from '../contexts/toastContext';
+import { useToast } from '../contexts/toastContext';
 
 export default function Todo({ todo, showDelete,showEdit }) {
   const { todos, setTodos } = useContext(TodosContext);
-const { showHideToast } = useContext(ToastContext);
+// const { showHideToast } = useContext(ToastContext);
+  const { showHideToast } = useToast();
 
   const [inputTodo, setInputTodo] = useState({ title: todo.title, desc: todo.desc });
 

@@ -1,16 +1,19 @@
 import * as React from 'react';
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext, useMemo ,useReducer} from 'react';
 import { Container, Grid, TextField, Button, Box, Card, CardContent, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import { TodosContext, AlignmentContext } from '../contexts/todosContext';
 import ToggleButtons from './ToggleButton';
 import Todo from './Todo';
-import { ToastContext } from '../contexts/toastContext';
+import { useToast } from '../contexts/toastContext';
+import todoReducer from '../Reducers/todoReducer';
 
 export default function TodoList() {
-  const { todos, setTodos } = useContext(TodosContext);
+  const { todos2, setTodos } = useContext(TodosContext);
+  const [todos, dispatch] = useReducer(todoReducer, []);
   const { alignment } = useContext(AlignmentContext);
-const { showHideToast } = useContext(ToastContext);  
+// const { showHideToast } = useContext(ToastContext);  
+  const { showHideToast } = useToast();
 
   const [inputTodo, setInputTodo] = useState({ title: '', desc: '' });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -24,42 +27,35 @@ const { showHideToast } = useContext(ToastContext);
   if (alignment === 'active') todosToBeRendered = unCompletedTodos;
   else if (alignment === 'done') todosToBeRendered = completedTodos;
 
-  const handleAddTodo = () => {
-    if (inputTodo.title.trim() === '') return;
-
-    const newTodo = {
-      id: uuidv4(),
-      title: inputTodo.title,
-      desc: inputTodo.desc,
-      isComplete: false,
-    };
-
-    const updatedTodos = [...todos, newTodo];
-    setTodos(updatedTodos);
-    localStorage.setItem('todos', JSON.stringify(updatedTodos));
+  function handleAddTodo  ()  {   
     setInputTodo({ title: '', desc: '' });
     showHideToast('Todo added successfully');
+    dispatch({type:"added",
+        payload:{
+        title:inputTodo.title,
+        
+    }});
 
   };
-
-  useEffect(() => {
-    const storedTodos = JSON.parse(localStorage.getItem('todos'));
-    setTodos(storedTodos || []);
-  }, []);
-
-  const openDeleteDialog = (todo) => {
+  function openDeleteDialog  (todo)  {
     setDialogTodo(todo);
     setIsDialogOpen(true);
   };
 
   const deleteTodo = () => {
-    const updatedTodos = todos.filter((t) => t.id !== dialogTodo.id);
-    setTodos(updatedTodos);
-    localStorage.setItem('todos', JSON.stringify(updatedTodos));
     setIsDialogOpen(false);
     showHideToast('Todo deleted successfully');
+    dispatch({type:"deleted",
+        payload:{
+        id:dialogTodo.id,
+        
+    }});
   };
 
+
+  
+
+ 
   const openEditDialog = (todo) => {
     setDialogTodo(todo);
     setInputTodo({ title: todo.title, desc: todo.desc });
@@ -67,19 +63,19 @@ const { showHideToast } = useContext(ToastContext);
   };
 
   const handleEditTodo = () => {
-    const updatedTodos = todos.map((t) => {
-      if (t.id === dialogTodo.id) {
-        return { ...t, title: inputTodo.title, desc: inputTodo.desc };
-      }
-      return t;
-    });
-
-    setTodos(updatedTodos);
-    localStorage.setItem('todos', JSON.stringify(updatedTodos));
     setIsEditDialogOpen(false);
     showHideToast('Todo updated successfully');
-  };
-
+    dispatch({type:"updated",
+        payload:{
+        id:dialogTodo.id,
+        title:inputTodo.title,
+        desc:inputTodo.desc,
+        
+    }});
+  };    
+  useEffect(() => {
+    dispatch({type:"get",payload:todos});
+  }, []);
   const todosJsx = todosToBeRendered.map((todo) => (
     <Todo key={todo.id} todo={todo} showDelete={openDeleteDialog} showEdit={openEditDialog} />
   ));

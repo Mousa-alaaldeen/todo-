@@ -5,11 +5,11 @@ import { Container } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import { TodosContext,AlignmentContext } from './contexts/todosContext';
+import { TodosContext, AlignmentContext } from './contexts/todosContext';
 import { v4 as uuidv4 } from 'uuid';
 import { useState } from 'react';
 import MySnackBar from './Component/MySnackBar';
-import { ToastContext } from './contexts/toastContext';
+import { ToastContext, ToastProvider } from './contexts/toastContext';
 
 const initialTodos = [
   {
@@ -34,28 +34,20 @@ const initialTodos = [
 
 function App() {
   const [todos, setTodos] = useState(initialTodos);
-  const [alignment, setAlignment] = useState('all'); 
-  const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
-  function showHideToast(message) {
-    setMessage(message);
-    setOpen(true);
-    setTimeout(() => {
-      setOpen(false);
-    }, 6000);
-  }
+  const [alignment, setAlignment] = useState('all');
+
+
 
   return (
     <>
       <Card sx={{ minWidth: 275, backgroundColor: '#121212', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <Container>
           <TodosContext.Provider value={{ todos, setTodos }}>
-            <ToastContext.Provider value={{ showHideToast }}>
-            <AlignmentContext.Provider value={{ alignment, setAlignment }}>
-              <MySnackBar open={open} message={message} />
-              <TodoList />
-            </AlignmentContext.Provider>
-            </ToastContext.Provider>
+            <ToastProvider> {/* واحد بس هنا */}
+              <AlignmentContext.Provider value={{ alignment, setAlignment }}>
+                <TodoList />
+              </AlignmentContext.Provider>
+            </ToastProvider>
           </TodosContext.Provider>
         </Container>
       </Card>
